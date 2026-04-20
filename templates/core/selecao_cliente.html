@@ -1,0 +1,11 @@
+<!-- core/templates/core/selecao_cliente.html -->
+
+{% extends "base.html" %}
+{% block content %}
+  <h2>Olá, {{ request.session.cliente_nome }}!</h2>
+  <p>Escolha uma das opções abaixo:</p>
+  <ul>
+    <li><a href="{% url 'core:consultar_reserva_cliente' %}">Consultar minhas reservas</a></li>
+    <li><a href="{% url 'core:logout' %}">Sair</a></li>
+  </ul>
+{% endblock %}

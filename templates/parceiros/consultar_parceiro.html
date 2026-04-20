@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Consultar Parceiro{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100">
+    <div class="col-md-10">
+        <div class="card p-4">
+            <h2 class="text-center mb-4">Consultar parceiro</h2>
+            
+            <form method="get" class="mb-4">
+                <div class="row">
+                    <div class="col-md-8">
+                        {{ form.cnpj|as_crispy_field }}
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary">Buscar</button>
+                    </div>
+                </div>
+            </form>
+            
+            {% if parceiros %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>CNPJ</th>
+                            <th>Nome Fantasia</th>
+                            <th>Telefone</th>
+                            <th>Cidade/UF</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for parceiro in parceiros %}
+                        <tr>
+                            <td>{{ parceiro.cnpj }}</td>
+                            <td>{{ parceiro.nome_fantasia }}</td>
+                            <td>{{ parceiro.telefone }}</td>
+                            <td>{{ parceiro.cidade }}/{{ parceiro.uf }}</td>
+                            <td>
+                                <a href="{% url 'parceiros:editar_parceiro' parceiro.cnpj %}" class="btn btn-sm btn-secondary">Editar</a>
+                                <a href="{% url 'parceiros:excluir_parceiro' parceiro.cnpj %}" class="btn btn-sm btn-danger">Excluir</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% elif request.GET %}
+            <div class="alert alert-info">
+                Nenhum parceiro encontrado com os critérios informados.
+            </div>
+            {% endif %}
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'parceiros:cadastrar_parceiro' %}" class="btn btn-primary">Cadastrar parceiro</a>
+                <a href="{% url 'core:selecao_colaborador' %}" class="btn btn-secondary">Voltar</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

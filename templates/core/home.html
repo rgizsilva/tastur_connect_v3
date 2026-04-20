@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block title %}Tastur Connect — Sistema de Gestão de Viagens{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block content %}
+<div style="min-height: 100vh; display: flex; justify-content: center; align-items: center;">
+  <div class="card p-4 p-md-5" style="min-width: 320px; max-width: 480px; width: 100%; border-top: 5px solid var(--accent);">
+
+    <div class="text-center mb-4">
+      <div style="font-size: 3rem; margin-bottom: 8px;">✈️</div>
+      <h1 style="font-size: 1.8rem; font-weight: 700; color: var(--primary); letter-spacing: 1px;">TASTUR CONNECT</h1>
+      <p style="color: var(--muted); font-size: 0.92rem; margin-top: 4px;">Sistema de Gestão de Viagens e Turismo</p>
+    </div>
+
+    <hr style="border-color: #dce8f5; margin: 0 0 24px;">
+
+    <p class="text-center text-muted small mb-3">Selecione seu perfil de acesso</p>
+
+    <div class="d-grid gap-3">
+      <a href="{% url 'core:login_colaborador' %}" class="btn btn-primary home-button" style="width:100%; font-size:1rem; padding:13px;">
+        <i class="bi bi-person-badge me-2"></i>Entrar como Colaborador
+      </a>
+      <a href="{% url 'core:login_cliente' %}" class="btn btn-secondary home-button" style="width:100%; font-size:1rem; padding:13px;">
+        <i class="bi bi-person me-2"></i>Entrar como Cliente
+      </a>
+    </div>
+
+    <p class="text-center mt-4 mb-0" style="color:var(--muted); font-size:0.78rem;">
+      &copy; 2025 Tastur Connect &mdash; Todos os direitos reservados
+    </p>
+  </div>
+</div>
+{% endblock %}

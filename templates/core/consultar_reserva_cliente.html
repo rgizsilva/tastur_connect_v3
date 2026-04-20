@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>Minhas Reservas</h1>
+
+    {% if reservas %}
+        <div class="voucher-container">
+            {% for reserva in reservas %}
+                <div class="voucher-card">
+                    <div class="voucher-header">
+                        <h2>Voucher da Reserva</h2>
+                        <p><strong>Número da Reserva:</strong> {{ reserva.numero_reserva }}</p>
+                    </div>
+                    <div class="voucher-body">
+                        <div class="voucher-info">
+                            <p><strong>Destino:</strong> {{ reserva.destino }}</p>
+                            <p><strong>Origem:</strong> {{ reserva.origem }}</p>
+                            <p><strong>Data de Partida:</strong> {{ reserva.data_ida|date:"d \\d\\e F \\d\\e Y" }}</p>
+                            <p><strong>Data de Retorno:</strong> {{ reserva.data_volta|date:"d \\d\\e F \\d\\e Y" }}</p>
+                            <p><strong>Nome do Cliente:</strong> {{ reserva.nome_cliente }}</p>
+                            <p><strong>CPF:</strong> <span id="cpf-{{ reserva.numero_reserva }}">{{ reserva.cpf_cliente }}</span></p>
+                            <p><strong>Observações:</strong> {{ reserva.comentarios_adicionais }}</p>
+                        </div>
+                        <div class="voucher-qr">
+                            <p><strong>QR Code:</strong></p>
+                            <div class="qr-code-placeholder" id="qr-code-{{ reserva.numero_reserva }}">
+                                <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=ReservaID:{{reserva.numero_reserva}};Cliente:{{reserva.nome_cliente|urlencode}};Destino:{{reserva.destino|urlencode}}" alt="QR Code Simulado">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="voucher-footer">
+                        <button class="btn-download-pdf" data-reserva-id="{{ reserva.numero_reserva }}">Baixar Voucher PDF</button>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>Você não possui reservas registradas.</p>
+    {% endif %}
+{% endblock %}
+
+{% block extra_css %}
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+        }
+        .voucher-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            padding: 20px;
+        }
+        .voucher-card {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 650px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+        .voucher-header {
+            background-color: #0056b3;
+            color: #ffffff;
+            padding: 20px 25px;
+            text-align: left;
+        }
+        .voucher-header h2 {
+            margin: 0 0 5px 0;
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .voucher-header p {
+            margin: 0;
+            font-size: 15px;
+            opacity: 0.9;
+        }
+        .voucher-body {
+            padding: 25px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        .voucher-info {
+            flex: 3;
+            min-width: 280px;
+        }
+        .voucher-qr {
+            flex: 1;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 120px;
+        }
+        .voucher-info p, .voucher-qr p {
+            font-size: 15px;
+            margin: 8px 0;
+            color: #444;
+        }
+        .voucher-info p strong, .voucher-qr p strong {
+            color: #0056b3;
+            font-weight: 600;
+        }
+        .qr-code-placeholder {
+            width: 110px;
+            height: 110px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 5px;
+            border-radius: 4px;
+        }
+        .qr-code-placeholder img {
+            width: 100px;
+            height: 100px;
+        }
+        .voucher-footer {
+            padding: 15px 25px;
+            background-color: #f8f9fa;
+            text-align: right;
+            border-top: 1px solid #e0e0e0;
+        }
+        .btn-download-pdf {
+            background-color: #198754;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .btn-download-pdf:hover {
+            background-color: #157347;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #343a40;
+            margin-bottom: 25px;
+            font-weight: 600;
+        }
+    </style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const downloadButtons = document.querySelectorAll(".btn-download-pdf");
+        downloadButtons.forEach(button => {
+            button.addEventListener("click", function() {
+                const reservaId = this.getAttribute("data-reserva-id");
+                if (!reservaId || reservaId === "None" || reservaId.trim() === "") {
+                    alert("Erro: Número da Reserva não encontrado. Não é possível gerar o PDF.");
+                    return;
+                }
+                window.location.href = "/reservas/pdf/" + reservaId + "/";
+            });
+        });
+
+        const cpfSpans = document.querySelectorAll('span[id^="cpf-"]');
+        cpfSpans.forEach(span => {
+            const fullText = span.textContent.trim();
+            const parts = fullText.split(' - ');
+            if (parts.length > 1) {
+                const potentialCpf = parts[parts.length - 1].replace(/\D/g, '');
+                if (potentialCpf.length === 11) {
+                    span.textContent = potentialCpf;
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

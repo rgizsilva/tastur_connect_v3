@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Editar Cliente{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center  align-items-center min-vh-100">
+    <div class="col-md-8">
+        <div class="card p-4">
+            <h2 class="text-center mb-4">Editar cliente</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.nome_completo|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.cpf_cliente|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.data_nascimento|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.telefone|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.celular|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.cep|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-8">
+                        {{ form.endereco|as_crispy_field }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.numero|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.cidade|as_crispy_field }}
+                    </div>
+                    <div class="col-md-2">
+                        {{ form.uf|as_crispy_field }}
+                    </div>
+                    <div class="col-md-4">
+                        {{ form.complemento|as_crispy_field }}
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <a href="{% url 'clientes:consultar_cliente' %}" class="btn btn-secondary">Voltar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

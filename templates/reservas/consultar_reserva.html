@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Consultar Reserva{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100">
+    <div class="col-md-10">
+        <div class="card p-4">
+            <h2 class="text-center mb-4">Consultar reserva</h2>
+            
+            <form method="get" class="mb-4">
+                <div class="row">
+                    <div class="col-md-5">
+                        {{ form.numero_reserva|as_crispy_field }}
+                    </div>
+                    <div class="col-md-5">
+                        {{ form.cpf_cliente|as_crispy_field }}
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary w-100">Buscar</button>
+                    </div>
+                </div>
+            </form>
+            
+            {% if reservas %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Número</th>
+                            <th>Cliente</th>
+                            <th>CPF</th>
+                            <th>Origem</th>
+                            <th>Destino</th>
+                            <th>Data Ida</th>
+                            <th>Data Volta</th>
+                            <th>Última Atualização</th>
+                            <th>Comentários</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reserva in reservas %}
+                        <tr>
+                            <td>{{ reserva.numero_reserva }}</td>
+                            <td>{{ reserva.nome_cliente }}</td>
+                            <td>{{ reserva.cpf_cliente.cpf_cliente }}</td>
+                            <td>{{ reserva.origem }}</td>
+                            <td>{{ reserva.destino }}</td>
+                            <td>{{ reserva.data_ida|date:"d/m/Y" }}</td>
+                            <td>{{ reserva.data_volta|date:"d/m/Y" }}</td>
+                            <td>{{ reserva.updated_at|date:"d/m/Y H:i" }}</td>
+                            <td>
+                                {% if reserva.comentarios_adicionais %}
+                                    <span title="{{ reserva.comentarios_adicionais }}">
+                                        {{ reserva.comentarios_adicionais|truncatechars:30 }}
+                                    </span>
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'reservas:editar_reserva' reserva.numero_reserva %}" class="btn btn-sm btn-secondary">Editar</a>
+                                <a href="{% url 'reservas:excluir_reserva' reserva.numero_reserva %}" class="btn btn-sm btn-danger">Excluir</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% elif request.GET %}
+            <div class="alert alert-info">
+                Nenhuma reserva encontrada com os critérios informados.
+            </div>
+            {% endif %}
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'reservas:cadastrar_reserva' %}" class="btn btn-primary">Efetuar reserva</a>
+                <a href="{% url 'core:selecao_colaborador' %}" class="btn btn-secondary">Voltar</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

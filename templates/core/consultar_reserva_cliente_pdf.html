@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Voucher Reserva {{ reserva.numero_reserva }}</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f5f5f5;
+        }
+        .voucher-wrapper {
+            width: 100%;
+            max-width: 800px; 
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #0056b3;
+            padding-bottom: 10px;
+        }
+        .header h1 {
+            font-size: 24px;
+            color: #0056b3;
+            margin: 0;
+        }
+        .header p {
+            font-size: 14px;
+            margin: 5px 0 0 0;
+        }
+        .content {
+            display: flex;
+            flex-direction: row; 
+        }
+        .info-section {
+            width: 65%;
+            float: left;
+        }
+        .qr-section {
+            width: 30%;
+            float: right;
+            text-align: center;
+            padding-top: 10px;
+        }
+        .info-section p, .qr-section p {
+            margin: 6px 0;
+            font-size: 13px;
+        }
+        .info-section p strong, .qr-section p strong {
+            font-weight: bold;
+            color: #0056b3;
+            display: inline-block;
+            min-width: 120px; 
+        }
+        .qr-code img {
+            width: 120px;
+            height: 120px;
+            border: 1px solid #eee;
+            padding: 5px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+            font-size: 10px;
+            color: #777;
+            clear: both; 
+        }
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+    </style>
+</head>
+<body>
+    <div class="voucher-wrapper">
+        <div class="header">
+            <h1>Voucher da Reserva</h1>
+            <p>Número da Reserva: <strong>{{ reserva.numero_reserva }}</strong></p>
+        </div>
+
+        <div class="content clearfix">
+            <div class="info-section">
+                <p><strong>Cliente:</strong> {{ reserva.nome_cliente }}</p>
+                <p><strong>CPF:</strong> {{ cleaned_cpf }}</p>
+                <p><strong>Destino:</strong> {{ reserva.destino }}</p>
+                <p><strong>Origem:</strong> {{ reserva.origem }}</p>
+                <p><strong>Data de Partida:</strong> {{ reserva.data_ida|date:"d/m/Y" }}</p>
+                <p><strong>Data de Retorno:</strong> {{ reserva.data_volta|date:"d/m/Y" }}</p>
+                {% if reserva.comentarios_adicionais %}
+                <p><strong>Observações:</strong> {{ reserva.comentarios_adicionais }}</p>
+                {% endif %}
+            </div>
+
+            <div class="qr-section">
+                <p><strong>Detalhes da Reserva:</strong></p>
+                <div class="qr-code">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=ReservaID:{{reserva.numero_reserva}};Cliente:{{reserva.nome_cliente|urlencode}};Destino:{{reserva.destino|urlencode}};CPF:{{cleaned_cpf|urlencode}}" alt="QR Code da Reserva">
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Este é um comprovante de sua reserva. Apresente-o quando solicitado.</p>
+            <p>&copy; Tastur, A Sua Agência de Viagens. Todos os direitos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

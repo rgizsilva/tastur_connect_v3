@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: tastur-postgres
+    environment:
+      POSTGRES_DB: tastur
+      POSTGRES_USER: tastur
+      POSTGRES_PASSWORD: tastur123
+    ports:
+      - "5432:5432"
+    volumes:
+      - tastur_pgdata:/var/lib/postgresql/data
+
+volumes:
+  tastur_pgdata:

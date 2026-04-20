@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Excluir Cliente{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center  align-items-center min-vh-100">
+    <div class="col-md-6">
+        <div class="card p-4">
+            <h2 class="text-center mb-4">Excluir cliente</h2>
+            
+            <div class="alert alert-danger">
+                <p>Deseja realmente excluir permanentemente este cadastro?</p>
+                <p><strong>Cliente:</strong> {{ cliente.nome_completo }}</p>
+                <p><strong>CPF:</strong> {{ cliente.cpf_cliente }}</p>
+            </div>
+            
+            <form method="post">
+                {% csrf_token %}
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-danger">Sim</button>
+                    <a href="{% url 'clientes:consultar_cliente' %}" class="btn btn-secondary">Não</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

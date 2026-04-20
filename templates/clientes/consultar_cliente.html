@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Consultar Cliente{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100">
+    <div class="col-md-10">
+        <div class="card p-4">
+            <h2 class="text-center mb-4">Consultar cliente</h2>
+            
+            <form method="get" class="mb-4">
+                <div class="row">
+                    <div class="col-md-8">
+                        {{ form.cpf|as_crispy_field }}
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary">Buscar</button>
+                    </div>
+                </div>
+            </form>
+            
+            {% if clientes %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>CPF</th>
+                            <th>Nome</th>
+                            <th>Telefone</th>
+                            <th>Cidade/UF</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for cliente in clientes %}
+                        <tr>
+                            <td>{{ cliente.cpf_cliente }}</td>
+                            <td>{{ cliente.nome_completo }}</td>
+                            <td>{{ cliente.telefone }}</td>
+                            <td>{{ cliente.cidade }}/{{ cliente.uf }}</td>
+                            <td>
+                                <a href="{% url 'clientes:editar_cliente' cliente.cpf_cliente %}" class="btn btn-sm btn-secondary">Editar</a>
+                                <a href="{% url 'clientes:excluir_cliente' cliente.cpf_cliente %}" class="btn btn-sm btn-danger">Excluir</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% elif request.GET %}
+            <div class="alert alert-info">
+                Nenhum cliente encontrado com os critérios informados.
+            </div>
+            {% endif %}
+            
+            <div class="text-center mt-4">
+                <a href="{% url 'clientes:cadastrar_cliente' %}" class="btn btn-primary">Cadastrar cliente</a>
+                <a href="{% url 'core:selecao_colaborador' %}" class="btn btn-secondary">Voltar</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

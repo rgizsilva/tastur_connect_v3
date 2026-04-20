@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100">
+  <div class="container mt-5">
+    <h2>Consulta de Reservas</h2>
+    
+    <form method="get" class="mb-4">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-md-6">
+          {{ form.numero_reserva|as_crispy_field }}
+        </div>
+        <div class="col-md-6">
+          {{ form.cpf_cliente|as_crispy_field }}
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Buscar</button>
+    </form>
+
+    {% if reservas %}
+      <h3>Resultados</h3>
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th>Número da Reserva</th>
+            <th>Cliente</th>
+            <th>Parceiro</th>
+            <th>Data de Ida</th>
+            <th>Data de Volta</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for reserva in reservas %}
+            <tr>
+              <td>{{ reserva.numero_reserva }}</td>
+              <td>{{ reserva.nome_cliente }}</td>
+              <td>{{ reserva.nome_fantasia }}</td>
+              <td>{{ reserva.data_ida|date:"d/m/Y" }}</td>
+              <td>{{ reserva.data_volta|date:"d/m/Y" }}</td>
+              <td>{{ reserva.status }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% elif form.is_bound %}
+      <p>Nenhuma reserva encontrada.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

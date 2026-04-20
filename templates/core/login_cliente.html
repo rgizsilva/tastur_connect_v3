@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Login Cliente{% endblock %}
+
+{% block navbar %}{% endblock %}
+
+{% block content %}
+<div style="height: 100vh; display: flex; justify-content: center; align-items: center;">
+    <div class="card p-4" style="min-width: 300px; max-width: 500px; width: 100%;">
+        <h2 class="text-center mb-4">Login Cliente</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-primary">Entrar</button>
+            </div>
+            <div class="text-center mt-3">
+                <a href="{% url 'core:home' %}">Voltar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

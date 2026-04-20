@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Editar Reserva{% endblock %}
+
+{% block extra_css %}
+<!-- Adicione o CSS do flatpickr -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block extra_js %}
+<!-- Adicione o JavaScript do flatpickr -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar flatpickr para campos de data
+    flatpickr(".datepicker-br", {
+        dateFormat: "d/m/Y",
+        locale: "pt",
+        allowInput: true,
+        altInput: true,
+        altFormat: "d/m/Y",
+        disableMobile: true // Força o uso do flatpickr mesmo em dispositivos móveis
+    });
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center min-vh-100">
+    <div class="col-md-8">
+        <div class="card p-4">
+            <h2 class="text-center mb-4">Alterar reserva</h2>
+            <form method="post">
+                {% csrf_token %}
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.nome_cliente|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.cpf_cliente|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.data_entrada|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.colaborador_responsavel|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.nome_fantasia|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.cnpj|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.origem|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.destino|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.data_ida|as_crispy_field }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.data_volta|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        {{ form.comentarios_adicionais|as_crispy_field }}
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                    <a href="{% url 'reservas:consultar_reserva' %}" class="btn btn-secondary">Voltar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

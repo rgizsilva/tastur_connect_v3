@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+
+{% block title %}Painel do Colaborador — Tastur Connect{% endblock %}
+
+{% block content %}
+<div class="py-4">
+
+    <!-- Cabeçalho -->
+    <div class="mb-4">
+        <h2 class="section-title"><i class="bi bi-speedometer2 me-2"></i>Painel do Colaborador</h2>
+        <p class="section-subtitle">Bem-vindo, <strong>{{ user.first_name|default:user.username }}</strong>. O que deseja fazer hoje?</p>
+    </div>
+
+    <div class="row g-4">
+
+        <!-- Coluna esquerda: ações -->
+        <div class="col-lg-5">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <i class="bi bi-grid me-2"></i>Módulos do Sistema
+                </div>
+                <div class="card-body d-grid gap-2 p-3">
+                    <a href="{% url 'clientes:consultar_cliente' %}" class="btn btn-primary painel-action-btn">
+                        <span class="icon">👥</span>
+                        <div><div class="fw-bold">Gerenciar Clientes</div><small class="opacity-75">Cadastro e consulta</small></div>
+                    </a>
+                    <a href="{% url 'parceiros:consultar_parceiro' %}" class="btn btn-primary painel-action-btn">
+                        <span class="icon">🤝</span>
+                        <div><div class="fw-bold">Gerenciar Parceiros</div><small class="opacity-75">Hotéis, operadoras</small></div>
+                    </a>
+                    <a href="{% url 'reservas:consultar_reserva' %}" class="btn btn-primary painel-action-btn">
+                        <span class="icon">🗓️</span>
+                        <div><div class="fw-bold">Gerenciar Reservas</div><small class="opacity-75">Visualizar e editar</small></div>
+                    </a>
+                    <a href="{% url 'analise:relatorio_analise' %}" class="btn btn-success painel-action-btn">
+                        <span class="icon">📊</span>
+                        <div><div class="fw-bold">Relatório Completo</div><small class="opacity-75">Análise detalhada</small></div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Coluna direita: resumo via API -->
+        <div class="col-lg-7">
+            <div class="card h-100">
+                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                    <span><i class="bi bi-bar-chart-line me-2"></i>Resumo em Tempo Real</span>
+                    <button id="buscar-analise-btn" class="btn btn-sm btn-light fw-bold px-3">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Atualizar
+                    </button>
+                </div>
+                <div class="card-body" id="analise-resultado-container">
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-bar-chart" style="font-size:2.5rem; color:#90e0ef;"></i>
+                        <p class="mt-2">Clique em <strong>Atualizar</strong> para carregar os dados via API</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Spinner oculto -->
+    <div id="loading-spinner" class="text-center py-4" style="display:none;">
+        <div class="spinner-border" style="color:var(--accent);" role="status">
+            <span class="visually-hidden">Carregando...</span>
+        </div>
+        <p class="mt-2 text-white-50">Buscando dados da API...</p>
+    </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const btn = document.getElementById('buscar-analise-btn');
+    const container = document.getElementById('analise-resultado-container');
+    const spinner = document.getElementById('loading-spinner');
+
+    btn.addEventListener('click', function () {
+        container.innerHTML = '';
+        spinner.style.display = 'block';
+
+        fetch('/api/analise/dados/')
+            .then(r => {
+                if (!r.ok) throw new Error(r.statusText);
+                return r.json();
+            })
+            .then(data => {
+                spinner.style.display = 'none';
+                const a = data[0];
+                if (!a) {
+                    container.innerHTML = '<div class="alert alert-warning">Nenhuma análise encontrada. Gere uma via API primeiro.</div>';
+                    return;
+                }
+                const fmt = v => parseFloat(v).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+                const date = new Date(a.data_analise).toLocaleString('pt-BR');
+                container.innerHTML = `
+                <div class="row g-3">
+                  <div class="col-6"><div class="stat-card blue">
+                    <h6><i class="bi bi-ticket-perforated me-1"></i>Pacotes Vendidos</h6>
+                    <h3>${a.pacotes_vendidos}</h3>
+                  </div></div>
+                  <div class="col-6"><div class="stat-card green">
+                    <h6><i class="bi bi-people me-1"></i>Idade Média Clientes</h6>
+                    <h3>${parseFloat(a.idade_media_clientes).toFixed(1)} <small style="font-size:1rem">anos</small></h3>
+                  </div></div>
+                  <div class="col-6"><div class="stat-card">
+                    <h6><i class="bi bi-cash-coin me-1"></i>Valor Médio</h6>
+                    <h3 style="font-size:1.2rem">${fmt(a.valor_medio_pacotes)}</h3>
+                  </div></div>
+                  <div class="col-6"><div class="stat-card orange">
+                    <h6><i class="bi bi-graph-up me-1"></i>Faixa de Valores</h6>
+                    <h3 style="font-size:1rem">${fmt(a.valor_minimo_pacote)} – ${fmt(a.valor_maximo_pacote)}</h3>
+                  </div></div>
+                </div>
+                <p class="text-muted small mt-3 mb-0"><i class="bi bi-clock me-1"></i>Última análise: ${date}</p>
+                `;
+            })
+            .catch(err => {
+                spinner.style.display = 'none';
+                container.innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-1"></i>Erro ao acessar a API.</div>';
+            });
+    });
+});
+</script>
+{% endblock %}

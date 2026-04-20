@@ -1,0 +1,290 @@
+{% extends 'base.html' %}
+
+{% block title %}Relatório de Análise — Tastur Connect{% endblock %}
+
+{% block extra_css %}
+<style>
+  .chart-bar-wrap { background: #f0f7ff; border-radius: 8px; padding: 6px 10px; }
+  .chart-bar { height: 22px; border-radius: 6px; background: linear-gradient(90deg, #0077b6, #00b4d8); transition: width 0.6s ease; }
+  .chart-bar.green  { background: linear-gradient(90deg, #1b7a6e, #2a9d8f); }
+  .chart-bar.orange { background: linear-gradient(90deg, #c97d2e, #f4a261); }
+  .chart-bar.red    { background: linear-gradient(90deg, #c62828, #e63946); }
+  .stat-big { font-size: 2rem; font-weight: 700; color: var(--primary); }
+  .meta-badge { display:inline-block; background: linear-gradient(135deg,#0077b6,#00b4d8); color:#fff;
+                border-radius: 8px; padding: 3px 12px; font-size:.78rem; font-weight:600; letter-spacing:.5px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="py-4">
+
+  <div class="mb-4">
+    <h2 class="section-title"><i class="bi bi-graph-up-arrow me-2"></i>Relatório de Análise de Dados</h2>
+    <p class="section-subtitle">Métricas calculadas em tempo real com dados reais do banco de dados.</p>
+  </div>
+
+  <!-- KPIs principais -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="card text-center p-3">
+        <div class="stat-big">{{ total_reservas }}</div>
+        <div class="text-muted small"><i class="bi bi-calendar-check me-1"></i>Total de Reservas</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card text-center p-3">
+        <div class="stat-big">{{ total_clientes }}</div>
+        <div class="text-muted small"><i class="bi bi-people me-1"></i>Total de Clientes</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card text-center p-3">
+        <div class="stat-big">{{ idade_media }}</div>
+        <div class="text-muted small"><i class="bi bi-person me-1"></i>Idade Média (anos)</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="card text-center p-3">
+        {% if valor_stats.total_faturado %}
+        <div class="stat-big" style="font-size:1.4rem">R$ {{ valor_stats.total_faturado|floatformat:0 }}</div>
+        {% else %}
+        <div class="stat-big">—</div>
+        {% endif %}
+        <div class="text-muted small"><i class="bi bi-cash-coin me-1"></i>Total Faturado</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-4">
+
+    <!-- Valores -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-primary text-white">
+          <i class="bi bi-currency-dollar me-2"></i>Valores dos Pacotes
+        </div>
+        <div class="card-body">
+          {% if valor_stats.media %}
+          <div class="mb-3">
+            <span class="text-muted small">Valor Médio</span>
+            <div class="fw-bold fs-5">R$ {{ valor_stats.media|floatformat:2 }}</div>
+          </div>
+          <div class="mb-3">
+            <span class="text-muted small">Menor Pacote</span>
+            <div class="fw-bold">R$ {{ valor_stats.minimo|floatformat:2 }}</div>
+          </div>
+          <div class="mb-3">
+            <span class="text-muted small">Maior Pacote</span>
+            <div class="fw-bold">R$ {{ valor_stats.maximo|floatformat:2 }}</div>
+          </div>
+          {% else %}
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle me-1"></i>
+            Nenhuma reserva com valor cadastrado ainda. Edite suas reservas no campo <strong>Valor Total</strong>.
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Top destinos -->
+    <div class="col-md-6">
+      <div class="card h-100">
+        <div class="card-header bg-info text-white">
+          <i class="bi bi-geo-alt me-2"></i>Top Destinos
+        </div>
+        <div class="card-body">
+          {% if top_destinos %}
+            {% with max_dest=top_destinos.0.total %}
+            {% for d in top_destinos %}
+            <div class="mb-2">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="small fw-500">{{ d.destino }}</span>
+                <span class="small text-muted">{{ d.total }} reserva{{ d.total|pluralize }}</span>
+              </div>
+              <div class="chart-bar-wrap">
+                <div class="chart-bar" style="width: {% widthratio d.total max_dest 100 %}%"></div>
+              </div>
+            </div>
+            {% endfor %}
+            {% endwith %}
+          {% else %}
+          <p class="text-muted">Nenhuma reserva cadastrada ainda.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Por Status -->
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-header bg-success text-white">
+          <i class="bi bi-check2-circle me-2"></i>Por Status
+        </div>
+        <div class="card-body">
+          {% if por_status %}
+            {% with max_s=por_status.0.total %}
+            {% for s in por_status %}
+            <div class="mb-2">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="small fw-500 text-capitalize">{{ s.status }}</span>
+                <span class="small text-muted">{{ s.total }}</span>
+              </div>
+              <div class="chart-bar-wrap">
+                {% if s.status == 'confirmada' or s.status == 'concluida' %}
+                  <div class="chart-bar green" style="width: {% widthratio s.total max_s 100 %}%"></div>
+                {% elif s.status == 'cancelada' %}
+                  <div class="chart-bar red" style="width: {% widthratio s.total max_s 100 %}%"></div>
+                {% else %}
+                  <div class="chart-bar orange" style="width: {% widthratio s.total max_s 100 %}%"></div>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+            {% endwith %}
+          {% else %}
+          <p class="text-muted small">Sem dados.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Por Tipo de Pacote -->
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-header text-white" style="background:linear-gradient(90deg,#c97d2e,#f4a261)">
+          <i class="bi bi-suitcase me-2"></i>Tipo de Pacote
+        </div>
+        <div class="card-body">
+          {% if por_tipo %}
+            {% with max_t=por_tipo.0.total %}
+            {% for t in por_tipo %}
+            <div class="mb-2">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="small fw-500 text-capitalize">{{ t.tipo_pacote }}</span>
+                <span class="small text-muted">{{ t.total }}</span>
+              </div>
+              <div class="chart-bar-wrap">
+                <div class="chart-bar orange" style="width: {% widthratio t.total max_t 100 %}%"></div>
+              </div>
+            </div>
+            {% endfor %}
+            {% endwith %}
+          {% else %}
+          <p class="text-muted small">Sem dados.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Por Canal de Venda -->
+    <div class="col-md-4">
+      <div class="card h-100">
+        <div class="card-header text-white" style="background:linear-gradient(90deg,#023e8a,#0077b6)">
+          <i class="bi bi-megaphone me-2"></i>Canal de Venda
+        </div>
+        <div class="card-body">
+          {% if por_canal %}
+            {% with max_c=por_canal.0.total %}
+            {% for c in por_canal %}
+            <div class="mb-2">
+              <div class="d-flex justify-content-between mb-1">
+                <span class="small fw-500 text-capitalize">{{ c.canal_venda }}</span>
+                <span class="small text-muted">{{ c.total }}</span>
+              </div>
+              <div class="chart-bar-wrap">
+                <div class="chart-bar" style="width: {% widthratio c.total max_c 100 %}%"></div>
+              </div>
+            </div>
+            {% endfor %}
+            {% endwith %}
+          {% else %}
+          <p class="text-muted small">Sem dados.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /row -->
+
+  <!-- Metabase CTA -->
+  <div class="card mt-4" style="border-left: 5px solid #509EE3;">
+    <div class="card-body d-flex align-items-start gap-3">
+      <div style="font-size:2.5rem">📊</div>
+      <div>
+        <h5 class="fw-bold mb-1">Análise avançada com Metabase</h5>
+        <p class="text-muted mb-2 small">
+          Este sistema grava dados detalhados de reservas no banco PostgreSQL — status, canal de venda, tipo de pacote, valor e passageiros —
+          prontos para criar dashboards interativos no Metabase.
+        </p>
+        <span class="meta-badge me-1">Gratuito</span>
+        <span class="meta-badge me-1">Conecta ao mesmo banco</span>
+        <span class="meta-badge">Sem instalar nada</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- API endpoint info -->
+  <div class="card mt-3">
+    <div class="card-header" style="background:#1e1e2e; color:#90e0ef; font-family:monospace; font-size:.85rem;">
+      <i class="bi bi-terminal me-2"></i>Endpoints da API REST disponíveis
+    </div>
+    <div class="card-body" style="background:#2d2d3e; border-radius:0 0 14px 14px; font-family:monospace; font-size:.82rem; color:#cdd6f4;">
+      <div class="mb-2">
+        <span style="color:#a6e3a1">GET</span>
+        <span style="color:#89dceb"> /api/analise/dados/</span>
+        <span style="color:#6c7086"> → Última análise salva</span>
+      </div>
+      <div class="mb-2">
+        <span style="color:#f38ba8">POST</span>
+        <span style="color:#89dceb"> /api/analise/dados/atualizar/</span>
+        <span style="color:#6c7086"> → Calcula e salva nova análise com dados reais</span>
+      </div>
+      <div>
+        <span style="color:#a6e3a1">GET</span>
+        <span style="color:#89dceb"> /api/analise/dados/resumo/</span>
+        <span style="color:#6c7086"> → Resumo ao vivo (por status, tipo, canal) sem salvar</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 text-center">
+    <a href="{% url 'core:selecao_colaborador' %}" class="btn btn-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Voltar ao Painel
+    </a>
+    <button id="btn-atualizar-analise" class="btn btn-primary ms-2">
+      <i class="bi bi-arrow-clockwise me-1"></i>Recalcular e Salvar Análise
+    </button>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('btn-atualizar-analise').addEventListener('click', function() {
+    const btn = this;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Calculando...';
+
+    fetch('/api/analise/dados/atualizar/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.error) throw new Error(data.error);
+        alert('✅ Análise recalculada e salva com sucesso!\n\nPacotes: ' + data.pacotes_vendidos + '\nValor médio: R$ ' + parseFloat(data.valor_medio_pacotes).toFixed(2));
+        location.reload();
+    })
+    .catch(err => {
+        alert('Erro: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>Recalcular e Salvar Análise';
+    });
+});
+</script>
+{% endblock %}
