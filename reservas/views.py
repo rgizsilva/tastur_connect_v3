@@ -13,14 +13,13 @@ def cadastrar_reserva(request):
         form = ReservaForm(request.POST)
         if form.is_valid():
             reserva = form.save(commit=False)
-
-            reserva.status = "Pendente"
-            reserva.tipo_pacote = "Padrão"
-            reserva.canal_venda = "Site"
-            reserva.numero_passageiros = 1
-
+            cliente = form.cleaned_data['cpf_cliente']
+            reserva.nome_cliente = cliente.nome_completo
+            parceiro = form.cleaned_data['cnpj']
+            reserva.nome_fantasia = parceiro.nome_fantasia if hasattr(parceiro, 'nome_fantasia') else str(parceiro)
+            reserva.colaborador_responsavel = request.user.get_full_name() or request.user.username
             reserva.save()
-            return redirect('reservas:consultar_reserva')
+            return redirect('reservas:sucesso_reserva', numero_reserva=reserva.numero_reserva)
         else:
             print(form.errors)
     else:
@@ -28,13 +27,18 @@ def cadastrar_reserva(request):
 
     return render(request, 'reservas/cadastrar_reserva.html', {'form': form})
 
+@login_required
+def sucesso_reserva(request, numero_reserva):
+    reserva = get_object_or_404(Reserva, numero_reserva=numero_reserva)
+    return render(request, 'reservas/sucesso_reserva.html', {'reserva': reserva})
+
 def consultar_reserva(request):
     form = ConsultaReservaForm(request.GET or None)
     reservas = Reserva.objects.none()
 
     if form.is_valid():
         numero_reserva = form.cleaned_data.get('numero_reserva')
-        cpf_cliente = form.cleaned_data.get('cpf_cliente')  
+        cpf_cliente = form.cleaned_data.get('cpf_cliente')
 
         if numero_reserva:
             reservas = Reserva.objects.filter(numero_reserva=numero_reserva)
@@ -63,10 +67,10 @@ def editar_reserva(request, numero_reserva):
 @login_required
 def excluir_reserva(request, numero_reserva):
     reserva = get_object_or_404(Reserva, numero_reserva=numero_reserva)
-    
+
     if request.method == 'POST':
         reserva.delete()
         messages.success(request, "Reserva excluída com sucesso!")
         return redirect('reservas:consultar_reserva')
-    
+
     return render(request, 'reservas/excluir_reserva.html', {'reserva': reserva})

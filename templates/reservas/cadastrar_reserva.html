@@ -1,73 +1,122 @@
-{# reservas/cadastrar_reserva.html #}
 {% extends 'base.html' %}
 {% load crispy_forms_tags %}
 
-{% block title %}Cadastrar Reserva{% endblock %}
+{% block title %}{% if reserva %}Editar Reserva{% else %}Nova Reserva{% endif %} — Tastur Connect{% endblock %}
 
 {% block extra_css %}
-<!-- Adicione o CSS do flatpickr -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 {% endblock %}
 
+{% block content %}
+<div class="py-4">
+    <div class="mb-4">
+        <h2 class="section-title">
+            <i class="bi bi-calendar-plus me-2"></i>
+            {% if reserva %}Editar Reserva #{{ reserva.numero_reserva }}{% else %}Nova Reserva{% endif %}
+        </h2>
+        <p class="section-subtitle">Preencha todos os campos obrigatórios para {% if reserva %}atualizar{% else %}registrar{% endif %} a reserva.</p>
+    </div>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="row g-4">
+
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <i class="bi bi-person-vcard me-2"></i>Dados do Cliente e Parceiro
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">{{ form.cpf_cliente|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ form.cnpj|as_crispy_field }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-info text-white">
+                        <i class="bi bi-geo-alt me-2"></i>Itinerário
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">{{ form.origem|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ form.destino|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ form.data_ida|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ form.data_volta|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ form.numero_passageiros|as_crispy_field }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header text-white" style="background:linear-gradient(90deg,#c97d2e,#f4a261)">
+                        <i class="bi bi-suitcase me-2"></i>Detalhes do Pacote
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">{{ form.tipo_pacote|as_crispy_field }}</div>
+                            <div class="col-md-4">{{ form.status|as_crispy_field }}</div>
+                            <div class="col-md-4">{{ form.canal_venda|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ form.valor_total|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ form.avaliacao_cliente|as_crispy_field }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header" style="background:var(--dark-card)">
+                        <i class="bi bi-chat-left-text me-2"></i>Observações
+                    </div>
+                    <div class="card-body">
+                        {{ form.comentarios_adicionais|as_crispy_field }}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        {% if form.errors %}
+        <div class="alert alert-danger mt-3">
+            <i class="bi bi-exclamation-triangle me-1"></i>
+            Corrija os erros antes de salvar:
+            {{ form.errors }}
+        </div>
+        {% endif %}
+
+        <div class="text-center mt-4">
+            <a href="{% url 'reservas:consultar_reserva' %}" class="btn btn-secondary me-2">
+                <i class="bi bi-arrow-left me-1"></i>Voltar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i>{% if reserva %}Salvar Alterações{% else %}Confirmar Reserva{% endif %}
+            </button>
+        </div>
+
+    </form>
+</div>
+{% endblock %}
+
 {% block extra_js %}
-<!-- Adicione o JavaScript do flatpickr -->
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://npmcdn.com/flatpickr/dist/l10n/pt.js"></script>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar flatpickr para campos de data
     flatpickr(".datepicker-br", {
         dateFormat: "d/m/Y",
         locale: "pt",
         allowInput: true,
         altInput: true,
         altFormat: "d/m/Y",
-        disableMobile: true // Força o uso do flatpickr mesmo em dispositivos móveis
+        disableMobile: true
     });
 });
 </script>
-{% endblock %}
-
-{% block content %}
-<div class="row justify-content-center align-items-center min-vh-100">
-    <div class="col-md-8">
-        <div class="card p-4">
-            <h2 class="text-center mb-4">Efetuar reserva</h2>
-            <form method="post">
-                {% csrf_token %}
-                
-                {{ form.cpf_cliente|as_crispy_field }}
-                {{ form.cnpj|as_crispy_field }} {# Renderiza o campo de parceiro opcional #}
-                
-                <div class="row">
-                    <div class="col-md-6">
-                        {{ form.origem|as_crispy_field }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ form.destino|as_crispy_field }}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-6">
-                        {{ form.data_ida|as_crispy_field }}
-                    </div>
-                    <div class="col-md-6">
-                        {{ form.data_volta|as_crispy_field }}
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        {{ form.comentarios_adicionais|as_crispy_field }}
-                    </div>
-                </div>
-                
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-primary">Salvar</button>
-                    <a href="{% url 'reservas:consultar_reserva' %}" class="btn btn-secondary">Voltar</a>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 {% endblock %}

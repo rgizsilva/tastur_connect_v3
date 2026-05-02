@@ -109,28 +109,22 @@ document.addEventListener('DOMContentLoaded', function () {
         container.innerHTML = '';
         spinner.style.display = 'block';
 
-        fetch('/api/analise/dados/')
+        fetch('/api/analise/dados/resumo/')
             .then(r => {
                 if (!r.ok) throw new Error(r.statusText);
                 return r.json();
             })
-            .then(data => {
+            .then(a => {
                 spinner.style.display = 'none';
-                const a = data[0];
-
-                if (!a) {
-                    container.innerHTML = '<div class="alert alert-warning">Nenhuma análise encontrada.</div>';
-                    return;
-                }
 
                 const fmt = v => parseFloat(v).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
-                const date = new Date(a.data_analise).toLocaleString('pt-BR');
+                const date = new Date(a.gerado_em).toLocaleString('pt-BR');
 
                 container.innerHTML = `
                 <div class="row g-3">
                   <div class="col-6"><div class="stat-card blue">
                     <h6><i class="bi bi-ticket-perforated me-1"></i>Pacotes Vendidos</h6>
-                    <h3>${a.pacotes_vendidos}</h3>
+                    <h3>${a.total_reservas}</h3>
                   </div></div>
 
                   <div class="col-6"><div class="stat-card green">
@@ -140,12 +134,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
                   <div class="col-6"><div class="stat-card">
                     <h6><i class="bi bi-cash-coin me-1"></i>Valor Médio</h6>
-                    <h3>${fmt(a.valor_medio_pacotes)}</h3>
+                    <h3>${fmt(a.valor_medio)}</h3>
                   </div></div>
 
                   <div class="col-6"><div class="stat-card orange">
-                    <h6><i class="bi bi-graph-up me-1"></i>Faixa de Valores</h6>
-                    <h3>${fmt(a.valor_minimo_pacote)} – ${fmt(a.valor_maximo_pacote)}</h3>
+                    <h6><i class="bi bi-person-check me-1"></i>Total de Clientes</h6>
+                    <h3>${a.total_clientes}</h3>
                   </div></div>
                 </div>
 
