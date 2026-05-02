@@ -262,29 +262,71 @@
 
 {% block extra_js %}
 <script>
-document.getElementById('btn-atualizar-analise').addEventListener('click', function() {
-    const btn = this;
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Calculando...';
+document.addEventListener('DOMContentLoaded', function () {
 
-    fetch('/api/analise/dados/atualizar/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-            'Content-Type': 'application/json'
+    const btn = document.getElementById('btn-atualizar-analise');
+
+    // 🔐 Função correta para pegar CSRF do cookie
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let cookie of cookies) {
+                cookie = cookie.trim();
+                if (cookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
         }
-    })
-    .then(r => r.json())
-    .then(data => {
-        if (data.error) throw new Error(data.error);
-        alert('✅ Análise recalculada e salva com sucesso!\n\nPacotes: ' + data.pacotes_vendidos + '\nValor médio: R$ ' + parseFloat(data.valor_medio_pacotes).toFixed(2));
-        location.reload();
-    })
-    .catch(err => {
-        alert('Erro: ' + err.message);
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>Recalcular e Salvar Análise';
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie('csrftoken');
+
+    btn.addEventListener('click', function () {
+
+        // UI feedback (UX melhor)
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Calculando...';
+
+        fetch('/api/analise/dados/atualizar/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro na requisição');
+            }
+            return response.json();
+        })
+        .then(data => {
+
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+            alert(
+                '✅ Análise recalculada com sucesso!\n\n' +
+                'Pacotes: ' + data.pacotes_vendidos + '\n' +
+                'Valor médio: R$ ' + parseFloat(data.valor_medio_pacotes).toFixed(2)
+            );
+
+            // Recarrega a página com dados atualizados
+            location.reload();
+        })
+        .catch(error => {
+            alert('❌ Erro: ' + error.message);
+
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-arrow-clockwise me-1"></i>Recalcular e Salvar Análise';
+        });
+
     });
+
 });
 </script>
 {% endblock %}

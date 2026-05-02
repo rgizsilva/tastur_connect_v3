@@ -19,24 +19,51 @@
                 <div class="card-header bg-primary text-white">
                     <i class="bi bi-grid me-2"></i>Módulos do Sistema
                 </div>
-                <div class="card-body d-grid gap-2 p-3">
-                    <a href="{% url 'clientes:consultar_cliente' %}" class="btn btn-primary painel-action-btn">
-                        <span class="icon">👥</span>
-                        <div><div class="fw-bold">Gerenciar Clientes</div><small class="opacity-75">Cadastro e consulta</small></div>
-                    </a>
-                    <a href="{% url 'parceiros:consultar_parceiro' %}" class="btn btn-primary painel-action-btn">
-                        <span class="icon">🤝</span>
-                        <div><div class="fw-bold">Gerenciar Parceiros</div><small class="opacity-75">Hotéis, operadoras</small></div>
-                    </a>
-                    <a href="{% url 'reservas:consultar_reserva' %}" class="btn btn-primary painel-action-btn">
-                        <span class="icon">🗓️</span>
-                        <div><div class="fw-bold">Gerenciar Reservas</div><small class="opacity-75">Visualizar e editar</small></div>
-                    </a>
-                    <a href="{% url 'analise:relatorio' %}" class="btn btn-success painel-action-btn"></a>
-                        <span class="icon">📊</span>
-                        <div><div class="fw-bold">Relatório Completo</div><small class="opacity-75">Análise detalhada</small></div>
-                    </a>
+                <div class="card-body p-3">
+    <div class="row g-3">
+
+        <div class="col-12">
+            <a href="{% url 'clientes:consultar_cliente' %}" class="dashboard-card">
+                <i class="bi bi-people-fill icon"></i>
+                <div>
+                    <h6>Clientes</h6>
+                    <p>Cadastro e consulta</p>
                 </div>
+            </a>
+        </div>
+
+        <div class="col-12">
+            <a href="{% url 'parceiros:consultar_parceiro' %}" class="dashboard-card">
+                <i class="bi bi-diagram-3-fill icon"></i>
+                <div>
+                    <h6>Parceiros</h6>
+                    <p>Hotéis e operadoras</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12">
+            <a href="{% url 'reservas:consultar_reserva' %}" class="dashboard-card">
+                <i class="bi bi-calendar-check-fill icon"></i>
+                <div>
+                    <h6>Reservas</h6>
+                    <p>Visualizar e editar</p>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-12">
+            <a href="{% url 'analise:relatorio' %}" class="dashboard-card success">
+                <i class="bi bi-bar-chart-fill icon"></i>
+                <div>
+                    <h6>Relatórios</h6>
+                    <p>Análise detalhada</p>
+                </div>
+            </a>
+        </div>
+
+    </div>
+</div>
             </div>
         </div>
 
@@ -78,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const container = document.getElementById('analise-resultado-container');
     const spinner = document.getElementById('loading-spinner');
 
-    btn.addEventListener('click', function () {
+    function carregarAnalise() {
         container.innerHTML = '';
         spinner.style.display = 'block';
 
@@ -90,39 +117,54 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 spinner.style.display = 'none';
                 const a = data[0];
+
                 if (!a) {
-                    container.innerHTML = '<div class="alert alert-warning">Nenhuma análise encontrada. Gere uma via API primeiro.</div>';
+                    container.innerHTML = '<div class="alert alert-warning">Nenhuma análise encontrada.</div>';
                     return;
                 }
+
                 const fmt = v => parseFloat(v).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
                 const date = new Date(a.data_analise).toLocaleString('pt-BR');
+
                 container.innerHTML = `
                 <div class="row g-3">
                   <div class="col-6"><div class="stat-card blue">
                     <h6><i class="bi bi-ticket-perforated me-1"></i>Pacotes Vendidos</h6>
                     <h3>${a.pacotes_vendidos}</h3>
                   </div></div>
+
                   <div class="col-6"><div class="stat-card green">
                     <h6><i class="bi bi-people me-1"></i>Idade Média Clientes</h6>
-                    <h3>${parseFloat(a.idade_media_clientes).toFixed(1)} <small style="font-size:1rem">anos</small></h3>
+                    <h3>${parseFloat(a.idade_media_clientes).toFixed(1)} anos</h3>
                   </div></div>
+
                   <div class="col-6"><div class="stat-card">
                     <h6><i class="bi bi-cash-coin me-1"></i>Valor Médio</h6>
-                    <h3 style="font-size:1.2rem">${fmt(a.valor_medio_pacotes)}</h3>
+                    <h3>${fmt(a.valor_medio_pacotes)}</h3>
                   </div></div>
+
                   <div class="col-6"><div class="stat-card orange">
                     <h6><i class="bi bi-graph-up me-1"></i>Faixa de Valores</h6>
-                    <h3 style="font-size:1rem">${fmt(a.valor_minimo_pacote)} – ${fmt(a.valor_maximo_pacote)}</h3>
+                    <h3>${fmt(a.valor_minimo_pacote)} – ${fmt(a.valor_maximo_pacote)}</h3>
                   </div></div>
                 </div>
-                <p class="text-muted small mt-3 mb-0"><i class="bi bi-clock me-1"></i>Última análise: ${date}</p>
+
+                <p class="text-muted small mt-3 mb-0">
+                  <i class="bi bi-clock me-1"></i>Última análise: ${date}
+                </p>
                 `;
             })
-            .catch(err => {
+            .catch(() => {
                 spinner.style.display = 'none';
-                container.innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle me-1"></i>Erro ao acessar a API.</div>';
+                container.innerHTML = '<div class="alert alert-danger">Erro ao acessar a API.</div>';
             });
-    });
+    }
+
+    // botão continua funcionando
+    btn.addEventListener('click', carregarAnalise);
+
+    // 🔥 carrega automático ao abrir a página
+    carregarAnalise();
 });
 </script>
 {% endblock %}

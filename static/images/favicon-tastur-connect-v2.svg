@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <path id="arcTop" d="M 10,64 A 54,54 0 0,1 118,64"/>
+    <path id="arcBot" d="M 118,64 A 54,54 0 0,1 10,64"/>
+  </defs>
+
+  <!-- Circular dark background -->
+  <circle cx="64" cy="64" r="64" fill="#2a2a2a"/>
+
+  <!-- Circular text top -->
+  <text font-family="Arial, sans-serif" font-size="7.2" font-weight="600" letter-spacing="1.8">
+    <textPath href="#arcTop" startOffset="8%">
+      <tspan fill="#4a9eff">tastur</tspan>
+      <tspan fill="white" font-weight="400"> CONNECT</tspan>
+    </textPath>
+  </text>
+
+  <!-- Circular text bottom -->
+  <text font-family="Arial, sans-serif" font-size="6.5" fill="#4a9eff" letter-spacing="1.5">
+    <textPath href="#arcBot" startOffset="8%">• viva essa conexão •</textPath>
+  </text>
+
+  <!-- Dot separators -->
+  <circle cx="64" cy="11"  r="1.5" fill="#4a9eff"/>
+  <circle cx="64" cy="117" r="1.5" fill="#4a9eff"/>
+
+  <!-- "tas" -->
+  <text x="64" y="62"
+        font-family="Arial Black, Arial, sans-serif"
+        font-size="34" font-weight="900"
+        fill="white" text-anchor="middle" letter-spacing="-1">tas</text>
+
+  <!-- "tur" -->
+  <text x="64" y="92"
+        font-family="Arial Black, Arial, sans-serif"
+        font-size="34" font-weight="900"
+        fill="white" text-anchor="middle" letter-spacing="-1">tur</text>
+
+  <!-- Blue triangle (substitui o triângulo verde original) -->
+  <polygon points="32,28 22,44 42,44" fill="#4a9eff"/>
+</svg>

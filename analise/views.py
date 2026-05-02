@@ -8,11 +8,14 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Avg, Min, Max, Count, Sum
 from django.utils import timezone
+from django.shortcuts import render
 
 from .models import AnaliseDados
 from .serializers import AnaliseDadosSerializer
 
 
+def dashboard_page(request):
+        return render(request, 'analise/dashboard.html')
 class AnaliseDadosViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
     API endpoint para análise de dados do sistema Tastur Connect.
@@ -32,6 +35,7 @@ class AnaliseDadosViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         if latest:
             return [latest]
         return AnaliseDados.objects.none()
+    
 
     @action(detail=False, methods=['post'])
     def atualizar(self, request):

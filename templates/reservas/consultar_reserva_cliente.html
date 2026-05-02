@@ -2,52 +2,87 @@
 {% load crispy_forms_tags %}
 
 {% block content %}
-<div class="row justify-content-center align-items-center min-vh-100">
-  <div class="container mt-5">
-    <h2>Consulta de Reservas</h2>
-    
-    <form method="get" class="mb-4">
-      {% csrf_token %}
-      <div class="row">
-        <div class="col-md-6">
-          {{ form.numero_reserva|as_crispy_field }}
-        </div>
-        <div class="col-md-6">
-          {{ form.cpf_cliente|as_crispy_field }}
-        </div>
-      </div>
-      <button type="submit" class="btn btn-primary">Buscar</button>
-    </form>
+<div class="container py-4">
 
-    {% if reservas %}
-      <h3>Resultados</h3>
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th>Número da Reserva</th>
-            <th>Cliente</th>
-            <th>Parceiro</th>
-            <th>Data de Ida</th>
-            <th>Data de Volta</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for reserva in reservas %}
-            <tr>
-              <td>{{ reserva.numero_reserva }}</td>
-              <td>{{ reserva.nome_cliente }}</td>
-              <td>{{ reserva.nome_fantasia }}</td>
-              <td>{{ reserva.data_ida|date:"d/m/Y" }}</td>
-              <td>{{ reserva.data_volta|date:"d/m/Y" }}</td>
-              <td>{{ reserva.status }}</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    {% elif form.is_bound %}
-      <p>Nenhuma reserva encontrada.</p>
-    {% endif %}
+  <h2 class="section-title mb-4">Consulta de Reservas</h2>
+
+  <div class="row g-4">
+
+    <!-- CARD BUSCA -->
+    <div class="col-12">
+      <div class="card p-4">
+        <h5 class="mb-3">Buscar reservas</h5>
+
+        <form method="get">
+          <div class="row">
+            <div class="col-md-6">
+              {{ form.numero_reserva|as_crispy_field }}
+            </div>
+            <div class="col-md-6">
+              {{ form.cpf_cliente|as_crispy_field }}
+            </div>
+          </div>
+
+          <div class="mt-3">
+            <button type="submit" class="btn btn-primary">
+              Buscar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- CARD RESULTADOS -->
+    <div class="col-12">
+      <div class="card p-4">
+
+        {% if reservas %}
+        <div class="table-responsive">
+          <table class="table table-striped align-middle">
+            <thead class="table-primary">
+              <tr>
+                <th>Número</th>
+                <th>Cliente</th>
+                <th>Parceiro</th>
+                <th>Ida</th>
+                <th>Volta</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for reserva in reservas %}
+              <tr>
+                <td>{{ reserva.numero_reserva }}</td>
+                <td>{{ reserva.nome_cliente }}</td>
+                <td>{{ reserva.nome_fantasia }}</td>
+                <td>{{ reserva.data_ida|date:"d/m/Y" }}</td>
+                <td>{{ reserva.data_volta|date:"d/m/Y" }}</td>
+                <td>
+                  <span class="badge bg-info text-dark">
+                    {{ reserva.status }}
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% elif form.is_bound %}
+        <div class="alert alert-info">
+          Nenhuma reserva encontrada.
+        </div>
+        {% endif %}
+
+        <div class="mt-4 text-center">
+          <a href="{% url 'core:selecao_colaborador' %}" class="btn btn-secondary">
+            Voltar
+          </a>
+        </div>
+
+      </div>
+    </div>
+
   </div>
 </div>
 {% endblock %}

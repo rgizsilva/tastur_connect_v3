@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Dashboard</h1>
+
+<div class="cards">
+    <div class="card">
+        <h3>Total Vendas</h3>
+        <p id="totalvendas">0</p>
+    </div>
+
+    <div class="card">
+        <h3>Faturamento</h3>
+        <p id="faturamento">R$ 0</p>
+    </div>
+
+    <div class="card">
+        <h3>Clientes</h3>
+        <p id="clientes">0</p>
+    </div>
+</div>
+
+<canvas id="grafico"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/cart.js"></script>
+
+<script>
+    async function carregarDados() {
+        const response = await fetch("/analise/dados/resumo/");
+        const dados = await response.json();
+
+        //CARDS
+        document.getElementById("totalVendas").innerText = dados.total_reservas;
+        document.getElementById("faturamento").innerText = "R$ " + dados.total_clientes;
+        document.getElementById("clientes").innerText = dados.total_faturamento;
+
+        //GRÁFICO STATUS
+        new Chart(document.getElementById("graficoStatus"), {
+            type: "pie",
+            data : {
+                labels : Object.keys(dados.por_status),
+                datasets : [{
+                    label: "Vendas",
+                    data: Object.values(dados.por_status),
+                }]
+            }
+        });
+
+        //GRÁFICO PACOTES
+        new Chart(document.getElementById("graficoPacotes"), {
+            type: "bar",
+            data: {
+                labels: Object.keys(dados.por_tipo_pacote),
+                datasets: [{
+                    label: "Pacotes",
+                    data: Object.values(dados.tipo_pacote)
+                }]
+            }
+        });
+    }
+
+    carregarDashboard();
+</script>
+
+{% endblock %}

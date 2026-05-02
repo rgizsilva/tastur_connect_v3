@@ -13,9 +13,16 @@ def cadastrar_reserva(request):
         form = ReservaForm(request.POST)
         if form.is_valid():
             reserva = form.save(commit=False)
-            reserva.cpf_cliente = form.cleaned_data['cpf_cliente']  
+
+            reserva.status = "Pendente"
+            reserva.tipo_pacote = "Padrão"
+            reserva.canal_venda = "Site"
+            reserva.numero_passageiros = 1
+
             reserva.save()
-            return redirect('reservas:consultar_reserva')  
+            return redirect('reservas:consultar_reserva')
+        else:
+            print(form.errors)
     else:
         form = ReservaForm()
 
