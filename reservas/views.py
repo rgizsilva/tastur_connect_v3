@@ -13,10 +13,11 @@ def cadastrar_reserva(request):
         form = ReservaForm(request.POST)
         if form.is_valid():
             reserva = form.save(commit=False)
-            cliente = form.cleaned_data['cpf_cliente']
-            reserva.nome_cliente = cliente.nome_completo
+            reserva.cpf_cliente = form.cleaned_data['cpf_cliente']
+            reserva.cnpj = form.cleaned_data['cnpj']
             parceiro = form.cleaned_data['cnpj']
-            reserva.nome_fantasia = parceiro.nome_fantasia if hasattr(parceiro, 'nome_fantasia') else str(parceiro)
+            reserva.nome_cliente = reserva.cpf_cliente.nome_completo
+            reserva.nome_fantasia = getattr(parceiro, 'nome_fantasia', str(parceiro))
             reserva.colaborador_responsavel = request.user.get_full_name() or request.user.username
             reserva.save()
             return redirect('reservas:sucesso_reserva', numero_reserva=reserva.numero_reserva)
