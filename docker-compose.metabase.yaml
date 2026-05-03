@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  metabase:
+    image: metabase/metabase:latest
+    container_name: tastur-metabase
+    ports:
+      - "3000:3000"
+    environment:
+      MB_DB_TYPE: h2
+      MB_DB_FILE: /metabase-data/metabase.db
+      MB_SETUP_DATABASE_TYPE: postgres
+      MB_SETUP_DATABASE_HOST: dpg-d7inig7avr4c73fr8b7g-a.oregon-postgres.render.com
+      MB_SETUP_DATABASE_PORT: 5432
+      MB_SETUP_DATABASE_DBNAME: tastur_yjxb
+      MB_SETUP_DATABASE_USER: tastur
+      MB_SETUP_DATABASE_PASSWORD: knoBPh3a56iFta1UOFLHbrse0gMxboq4
+    volumes:
+      - metabase_data:/metabase-data
+    restart: unless-stopped
+
+volumes:
+  metabase_data:
